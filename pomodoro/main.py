@@ -10,8 +10,17 @@ WORK_MIN = 25
 SHORT_BREAK_MIN = 5
 LONG_BREAK_MIN = 20
 reps = 0
+timer = 0
 
 # ---------------------------- TIMER RESET ------------------------------- # 
+
+def reset_timer():
+    window.after_cancel(timer)
+    canvas.itemconfig(timer_text, text="0:00")
+    title_label.config(text="Timer")
+    check_marks.config(text="")
+    global reps 
+    reps = 0
 
 # ---------------------------- TIMER MECHANISM ------------------------------- # 
 
@@ -24,11 +33,17 @@ def start_timer():
     long_b_sec = LONG_BREAK_MIN * 60
 
     if reps % 8 == 0:
+        title_label.config(text="Break", fg=RED)
         count_down(long_b_sec)
+        
     elif reps % 2 == 0:
+        title_label.config(text="Break", fg=PINK)
         count_down(short_b_sec)
+       
     else:  
+        title_label.config(text="Work", fg=GREEN) 
         count_down(work_sec)
+        
     
     
 
@@ -44,9 +59,21 @@ def count_down(count):
 
     canvas.itemconfig(timer_text, text=f"{count_min}:{count_sec}") 
     if count > 0:
-        window.after(10, count_down, count-1)
+        global timer
+        timer = window.after(1000, count_down, count-1)
     else: 
         start_timer()
+        mark = ""
+        work_sessions = math.floor(reps/2)
+        for _ in range(work_sessions):
+            mark += "✔"
+        check_marks.config(text=mark)
+        # my original way
+        #if reps % 2 == 0: 
+        #   value = int(reps / 2)
+        #    print(value)
+        #    check_mark =  "✔"
+        #    check_marks.config(text=f"{check_mark * value}")
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
@@ -64,13 +91,13 @@ canvas.grid(column=1, row=1)
 title_label = Label(text="Timer",bg=YELLOW, fg=GREEN, font=(FONT_NAME, 48))
 title_label.grid(column=1,row=0)
 
-check_marks = Label(text="✔", fg=GREEN, bg=YELLOW)
+check_marks = Label(fg=GREEN, bg=YELLOW)
 check_marks.grid(column=1,row=3)
 
 #button
 start_btn = Button(text="Start", highlightthickness=0, command=start_timer)
 start_btn.grid(column=0, row=2)
-reset_btn = Button(text="Reset", highlightthickness=0)
+reset_btn = Button(text="Reset", highlightthickness=0, command=reset_timer)
 reset_btn.grid(column=2, row=2)
 
 
