@@ -1,4 +1,4 @@
 ## Pomodoro timer
 
-<img src="pomodoro/pomodoro.png"/>
+<img src="pomodoro.png"/>
 ## Overview
