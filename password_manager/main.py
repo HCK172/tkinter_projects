@@ -1,7 +1,25 @@
 from tkinter import * 
+from tkinter import messagebox
 from PIL import Image, ImageTk
+import random
+import string
 
 LAVENDER ="#E5D9F2"
+
+#------- generate the password -------#
+
+def generate_password():
+    custom_special_chars = "!@#$%&*+()"
+
+    nr_letter = random.sample(string.ascii_letters,6)  
+    numbers = random.sample(range(1,10),4)
+    nr_number = [ str(num) for num in numbers]
+    nr_char = random.sample(custom_special_chars,2)
+
+    password_list = nr_letter + nr_char + nr_number
+    random.shuffle(password_list)
+    password = "".join(password_list)
+    password_entry.insert(0,password)
 
 
 #------ password saved into a file -----#
@@ -10,31 +28,22 @@ def save():
     email_username = email_username_entry.get()
     password = password_entry.get()
 
-    if website and email_username and password:
-        new = f"{website} | {email_username} | {password}\n"
-        try: 
-            with open("password_manager/password.txt", "r") as file:
-                data = file.readlines()
-                data.append(new)
-            with open("password_manager/password.txt", "w") as file:
-                file.writelines(data)
-            success_label.config(text="Successfully added!😀")
-        except Exception as e:
-            success_label.config(text=f"Error: {e}")
-    else: 
-        success_label.config(text="Please fill in all fields!")
-    clear_entry()
-    
+    if len(website) == 0 or len(password) == 0:
+        messagebox.showinfo(title="Oops", message="Please don't leave any fields empty!")
+    else:
+        is_ok = messagebox.askokcancel(title=website, message=
+                            f"These are the details entered:\nEmail:{email_username}"f"\nPassword:{password}\n Is it ok to save?")
+        if is_ok:
+            with open("password.txt","a") as f:
+                f.write(f"{website} | {email_username} | {password}\n")
+                clear_entry()
 
 def clear_entry():
     website_entry.delete(0, END)
     email_username_entry.delete(0,END)
     email_username_entry.insert(0, "dumb@gmail.com")
     password_entry.delete(0,END)
-    window.after(500, lambda: success_label.config(text=""))
-
-
-         
+     
 #-------- UI Setup --------------------#
 window = Tk()
 window.title("Password Manager")
@@ -55,8 +64,6 @@ email_username_label = Label(text="Email/Username:", bg=LAVENDER)
 email_username_label.grid(column=0, row=2)
 password_label = Label(text="Password:", bg=LAVENDER)
 password_label.grid(column=0,row=3)
-success_label = Label(text="", bg=LAVENDER)
-success_label.grid(column=1,row=5, columnspan=2)
 
 # entries
 website_entry = Entry(width=40, highlightthickness=0)
@@ -69,7 +76,7 @@ password_entry = Entry(width=21, highlightthickness=0)
 password_entry.grid(column=1, row=3)
 
 # button 
-generate_btn = Button(text="Generate Password",bg= LAVENDER, borderwidth=0, highlightthickness=0)
+generate_btn = Button(text="Generate Password",bg= LAVENDER, borderwidth=0, highlightthickness=0, command=generate_password)
 generate_btn.grid(column=2,row=3)
 add_btn = Button(text="Add", width=38, bg=LAVENDER, borderwidth=0, highlightthickness=0, command=save)
 add_btn.grid(column=1, row=4, columnspan=2)
