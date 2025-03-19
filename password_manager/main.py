@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 import random
 import string
 import json
+import pyperclip
 
 LAVENDER ="#E5D9F2"
 
@@ -22,10 +23,9 @@ def generate_password():
     password = "".join(password_list)
     password_entry.insert(0,password)
 
-
 #------ password saved into a file -----#
 def save():
-    website = website_entry.get()
+    website = website_entry.get().title()
     email_username = email_username_entry.get()
     password = password_entry.get()
 
@@ -50,9 +50,29 @@ def save():
             data.update(new_data) 
             with open("password_manager/data.json","w") as json_file:
                 json.dump(data, json_file, indent=4)
-                
         finally:
             clear_entry()
+
+# -- find password ---- #
+def find_password():
+    search = website_entry.get().title()
+    try:
+        with open("password_manager/data.json") as json_file: 
+            data = json.load(json_file)
+
+    except FileNotFoundError: 
+        messagebox.showinfo(title="Error", message="No data file found!")
+       
+    else:
+        if search in data: 
+            email = data[search]["email"]
+            password = data[search]["password"]
+            messagebox.showinfo(title="Website",message=f"Email:{email}\nPassword:{password}")
+        else: 
+            messagebox.showinfo(title="Not found", message=f"No detail found for {search}!")
+
+ 
+#-- clear entry --- #
 
 def clear_entry():
     website_entry.delete(0, END)
@@ -74,16 +94,16 @@ canvas.create_image(80,80, image=lock_img)
 canvas.grid(column=1, row=0)
 
 # label
-website_label = Label(text="Website:", bg=LAVENDER)
+website_label = Label(text="Website:", bg=LAVENDER, pady=5)
 website_label.grid(column=0, row=1)
-email_username_label = Label(text="Email/Username:", bg=LAVENDER)
+email_username_label = Label(text="Email/Username:", bg=LAVENDER, pady=5)
 email_username_label.grid(column=0, row=2)
-password_label = Label(text="Password:", bg=LAVENDER)
+password_label = Label(text="Password:", bg=LAVENDER, pady=5)
 password_label.grid(column=0,row=3)
 
 # entries
-website_entry = Entry(width=40, highlightthickness=0)
-website_entry.grid(column=1, row=1, columnspan=2)
+website_entry = Entry(width=21, highlightthickness=0)
+website_entry.grid(column=1, row=1)
 website_entry.focus()
 email_username_entry = Entry(width=40, highlightthickness=0)
 email_username_entry.insert(0, "dummy@gmail.com")
@@ -92,9 +112,13 @@ password_entry = Entry(width=21, highlightthickness=0)
 password_entry.grid(column=1, row=3)
 
 # button 
+search_btn = Button(text="Search",bg= LAVENDER, borderwidth=0, highlightthickness=0, width=13, command=find_password)
+search_btn.grid(column=2, row=1)
+
 generate_btn = Button(text="Generate Password",bg= LAVENDER, borderwidth=0, highlightthickness=0, command=generate_password)
 generate_btn.grid(column=2,row=3)
-add_btn = Button(text="Add", width=38, bg=LAVENDER, borderwidth=0, highlightthickness=0, command=save)
+
+add_btn = Button(text="Add", width=37, bg=LAVENDER, borderwidth=0, highlightthickness=0, command=save)
 add_btn.grid(column=1, row=4, columnspan=2)
 
 
