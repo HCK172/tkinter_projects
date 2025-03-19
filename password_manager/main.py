@@ -3,6 +3,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 import random
 import string
+import json
 
 LAVENDER ="#E5D9F2"
 
@@ -28,15 +29,30 @@ def save():
     email_username = email_username_entry.get()
     password = password_entry.get()
 
+    new_data = {
+         website: {
+              "email": email_username,
+              "password":password
+         }
+    }
+
     if len(website) == 0 or len(password) == 0:
         messagebox.showinfo(title="Oops", message="Please don't leave any fields empty!")
     else:
-        is_ok = messagebox.askokcancel(title=website, message=
-                            f"These are the details entered:\nEmail:{email_username}"f"\nPassword:{password}\n Is it ok to save?")
-        if is_ok:
-            with open("password.txt","a") as f:
-                f.write(f"{website} | {email_username} | {password}\n")
-                clear_entry()
+        try:
+            with open("password_manager/data.json","r") as json_file:
+                data = json.load(json_file)
+               
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            with open("password_manager/data.json","w") as json_file:
+                json.dump(new_data, json_file, indent=4)
+        else: 
+            data.update(new_data) 
+            with open("password_manager/data.json","w") as json_file:
+                json.dump(data, json_file, indent=4)
+                
+        finally:
+            clear_entry()
 
 def clear_entry():
     website_entry.delete(0, END)
