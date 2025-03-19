@@ -6,6 +6,7 @@ import string
 import json
 import pyperclip
 
+
 LAVENDER ="#E5D9F2"
 
 #------- generate the password -------#
@@ -22,6 +23,7 @@ def generate_password():
     random.shuffle(password_list)
     password = "".join(password_list)
     password_entry.insert(0,password)
+    pyperclip.copy(password)
 
 #------ password saved into a file -----#
 def save():
