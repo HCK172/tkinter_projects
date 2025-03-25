@@ -4,29 +4,42 @@ import random
 
 BACKGROUND_COLOR = "#B1DDC6"
 
+current_card = {}
+to_learn = {}
 #----- read file ----#
 
-data = pd.read_csv("flashcard/data/vocab_ko.csv")
-data.dropna(axis="columns", inplace=True)
-vocab_list = data.to_dict('records')
-current_card = {}
-
+try: 
+    data = pd.read_csv("flashcard/data/words_to_learn.csv")
+except FileNotFoundError:
+    original_data = pd.read_csv("flashcard/data/vocab_ko.csv")
+    original_data.dropna(axis="columns", inplace=True)
+    to_learn = original_data.to_dict('records')
+else:
+    to_learn = data.to_dict('records')
 
 #----- flash card ----#
 
 def next_card():
     global current_card, flip_timer
     window.after_cancel(flip_timer)
-    current_card = random.choice(vocab_list)
+    current_card = random.choice(to_learn)
     canvas.itemconfig(card_title,text="korean",fill="black")
     canvas.itemconfig(card_word, text=current_card["Korean"], fill="black")
     canvas.itemconfig(canva_img, image=front_img)
     flip_timer = window.after(3000, func=flip_card)
 
+def is_known():
+    to_learn.remove(current_card)
+    print(len(to_learn))
+    data = pd.DataFrame(to_learn)
+    data.to_csv("flashcard/data/words_to_learn.csv", index=False)
+    next_card()
+
+
 # def next_card ():
-#    num = random.randint(0, len(vocab_list))
-#    vocab = vocab_list[num]['Korean']
-#    vocab_eng = vocab_list[num]['English']
+#    num = random.randint(0, len(to_learn))
+#    vocab = to_learn[num]['Korean']
+#    vocab_eng = to_learn[num]['English']
 #    return vocab
 
 def flip_card():
@@ -59,7 +72,7 @@ wrong_btn= Button(image=wrong_img, highlightthickness=0, command=next_card)
 wrong_btn.grid(column=0, row=1)
 
 right_img = PhotoImage(file="flashcard/images/right.png")
-right_btn = Button(image=right_img, highlightthickness=0, command=next_card)
+right_btn = Button(image=right_img, highlightthickness=0, command=is_known)
 right_btn.grid(column=1, row=1)
 
 next_card()
